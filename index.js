@@ -1,5 +1,5 @@
 const express = require('express');
-const { connect } = require ("./src/utils/db");
+const { connect } = require("./src/utils/db");
 const morgan = require('morgan');
 
 const { Server } = require('socket.io');
@@ -14,10 +14,12 @@ const cors = require('cors');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const socketIo = require('socket.io');
-
-const dotenv = require ("dotenv");
-const PORT = process.env.PORT;
+const io = new Socketserver(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"],
+  },
+});
 
 connect();
 app.use(cors({
@@ -30,42 +32,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/usuarios", usuariosRouter);
 app.use('/mensajes', mensajesRouter);
 
-// Configuración de socket.io
-const io = socketIo(server, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST']
-  }
-});
-
-io.engine.on("upgrade", (req, socket, head) => {
-  io.emit('upgrade', { req, socket, head });
-  io.handleUpgrade(req, socket, head, socket => {
-    io.emit('connection', socket);
-    io.emit('connect');
-    io.sockets[socket.id] = socket;
-    socket.emit('connect');
-    socket.emit('message', {message: 'Hola, mundo!'});
-  });
-});
-
-// Configuración de eventos
 io.on('connection', (socket) => {
-  console.log('Un cliente se ha conectado');
-
-  // Escuchar eventos del cliente
-  socket.on('message', (data) => {
-    console.log(`Mensaje recibido: ${data}`);
-    io.emit('message', data);
+  socket.on('joinRoom', (roomId, username) => {
+    socket.leaveAll();
+    socket.join(roomId);
+    io.to(roomId).emit('userJoined', username);
   });
 
-  // Escuchar eventos de desconexión
-  socket.on('disconnect', () => {
-    console.log('Un cliente se ha desconectado');
+  socket.on('chatMessage', (roomId, message) => {
+    io.to(roomId).emit('message', message);
   });
 });
 
-// Iniciar servidor
-server.listen(PORT, () => {
-  console.log(`Servidor iniciado en el puerto ${PORT}`);
+server.listen(process.env.PORT || 8000, () => {
+  console.log(`Servidor iniciado en el puerto ${process.env.PORT || 8000}`);
 });
