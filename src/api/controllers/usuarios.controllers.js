@@ -49,4 +49,13 @@ const postLoginUsuarios = async (req, res) => {
   }
 };
 
-module.exports = { getUsuarios, postRegisterUsuarios, postLoginUsuarios };
+const logout = (req, res, next) => {
+  try {
+      return res.status(200).json({token: null})
+  } catch (error) {
+      return res.status(500).json(error) ;
+  }
+};
+
+
+module.exports = { getUsuarios, postRegisterUsuarios, postLoginUsuarios, logout };
