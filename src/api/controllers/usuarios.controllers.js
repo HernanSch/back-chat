@@ -14,11 +14,11 @@ const getUsuarios = async (req, res) => {
 };
 
 const postRegisterUsuarios = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, user, photo, password } = req.body;
 
   try {
     const hash = await bcrypt.hash(password, saltRounds);
-    const usuario = new Usuario({ email, password: hash });
+    const usuario = new Usuario({ email, user, photo, password: hash });
     await usuario.save();
     res.status(200).send("Usuario registrado correctamente.");
   } catch (error) {
@@ -28,7 +28,7 @@ const postRegisterUsuarios = async (req, res) => {
 };
 
 const postLoginUsuarios = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, user, photo, password } = req.body;
 
   try {
     const usuario = await Usuario.findOne({ email });
@@ -42,7 +42,7 @@ const postLoginUsuarios = async (req, res) => {
     }
 
     const token = jwt.sign({ email }, "secretkey", { expiresIn: "1h" });
-    res.status(200).send({ token });
+    res.status(200).send({token, user: usuario})
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Error logging in user" });
