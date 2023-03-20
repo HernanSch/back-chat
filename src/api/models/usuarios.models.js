@@ -6,6 +6,7 @@ const usuariosSchema = new Schema ({
     user:{type:String,require:true},
     photo:{type:String,require:true},
     password :{type:String,require:true},    
+    connected :{type:Boolean,default: false},    
 })
 
 const Usuarios = mongoose.model("usuarios",usuariosSchema);

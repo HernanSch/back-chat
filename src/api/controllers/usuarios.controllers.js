@@ -14,11 +14,11 @@ const getUsuarios = async (req, res) => {
 };
 
 const postRegisterUsuarios = async (req, res) => {
-  const { email, user, photo, password } = req.body;
+  const { email, user, photo, password, connected } = req.body;
 
   try {
     const hash = await bcrypt.hash(password, saltRounds);
-    const usuario = new Usuario({ email, user, photo, password: hash });
+    const usuario = new Usuario({ email, user, photo, password: hash, connected });
     await usuario.save();
     res.status(200).send("Usuario registrado correctamente.");
   } catch (error) {
@@ -28,7 +28,7 @@ const postRegisterUsuarios = async (req, res) => {
 };
 
 const postLoginUsuarios = async (req, res) => {
-  const { email, user, photo, password } = req.body;
+  const { email, user, photo, password, connected } = req.body;
 
   try {
     const usuario = await Usuario.findOne({ email });
@@ -49,4 +49,34 @@ const postLoginUsuarios = async (req, res) => {
   }
 };
 
-module.exports = { getUsuarios, postRegisterUsuarios, postLoginUsuarios };
+const postLogout = (req, res, next) => {
+  try {
+      return res.status(200).json({token: null})
+  } catch (error) {
+      return res.status(500).json(error) ;
+  }
+};
+
+const usersConnected = async (req, res) => {
+  try {
+    const connectedUsers = await Usuario.find({ connected: true }); // Busca los usuarios conectados
+    res.status(200).json({ connectedUsers }); // Devuelve un objeto JSON con la lista de usuarios conectados
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error al obtener la lista de usuarios conectados' });
+  }
+};
+
+const updateUserConnectedStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { connected } = req.body;
+    await Usuario.findByIdAndUpdate(id, { connected });
+    res.sendStatus(204);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error al actualizar la información del usuario');
+  }
+};
+
+module.exports = { getUsuarios, postRegisterUsuarios, postLoginUsuarios, postLogout, usersConnected, updateUserConnectedStatus };
