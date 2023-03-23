@@ -20,9 +20,11 @@ const io = new Socketserver(server, {
 
 connect();
 app.use(cors({
-  origin: "*",
+  origin: "https://front-chat-gamma.vercel.app",
+  methods: ["GET", "POST", "PUT"],
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use("/usuarios", usuariosRouter);
