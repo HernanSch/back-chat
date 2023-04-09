@@ -1,4 +1,4 @@
-# Discord Fake Website - React JS - Hernán Schiavon Raineri 🚀
+# Discord Fake Website - React JS / Node Js / MongoDB
 
 This is my personal project with React, Node and MongoDB, a interactive chat website.✨
 
